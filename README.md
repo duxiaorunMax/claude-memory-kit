@@ -22,6 +22,18 @@
 
 ---
 
+## ⚠️ 重要区分
+
+| 操作 | 命令 | 时机 | 说明 |
+|------|------|------|------|
+| **初始化项目** | `/my-mem-init` | 首次进入新项目 | 创建配置文件、目录 |
+| **存储知识** | `mcp__memorygraph__store_memory` | 过程中随时 | 将知识写入数据库 |
+| **整理记忆** | `/my-mem-reflect` | 定期执行 | 整理、合并、降级 |
+
+**常见错误**：把 `/my-mem-init` 当作存储命令。初始化只需执行一次！
+
+---
+
 ## 系统架构
 
 ```
@@ -50,7 +62,7 @@
 
 | Skill | 功能 |
 |-------|------|
-| `/my-mem-init` | 初始化记忆系统 + 提示配置代码图 |
+| `/my-mem-init` | 初始化记忆系统 + 自动检测并修复路径问题 |
 | `/my-mem-reflect` | 记忆整理维护 |
 | `/my-mem-codegraph` | 代码图初始化/增量更新 |
 
@@ -183,6 +195,73 @@ pacman -S jq
 **不安装 jq 的影响**：
 - remember 插件的 SessionStart hook 会报错
 - 记忆上下文注入功能失效
+
+---
+
+## Windows 路径配置
+
+### 路径格式最佳实践
+
+**统一使用正斜杠 `/`**，避免反斜杠问题：
+
+```json
+// ❌ 错误 - 反斜杠可能被转义
+"command": "G:\\FeiJiang\\Anaconda2\\python.exe"
+
+// ✅ 正确 - 正斜杠兼容所有环境
+"command": "G:/FeiJiang/Anaconda2/python.exe"
+```
+
+**原因**：
+- Git Bash 等 Unix-like 环境中 `\` 是转义字符
+- JSON 中的 `\\` 需要双重转义，容易出错
+- Windows 原生支持 `/` 作为路径分隔符
+
+### 配置文件路径
+
+初始化时 `/my-mem-init` 会自动检测以下组件的路径：
+
+| 组件 | 检测路径 |
+|------|----------|
+| memorygraph | `~/.local/bin/memorygraph` |
+| code-review-graph | `~/.local/bin/code-review-graph` 或常见 Python Scripts 目录 |
+
+如果自动检测失败，需要手动配置 `.mcp.json`：
+
+```json
+{
+  "mcpServers": {
+    "memorygraph-project": {
+      "type": "stdio",
+      "command": "C:/Users/你的用户名/.local/bin/memorygraph.exe",
+      "args": [],
+      "env": {
+        "MEMORY_SQLITE_PATH": "./.claude/memory/memory.db"
+      }
+    },
+    "code-review-graph": {
+      "command": "你的Python路径/Scripts/code-review-graph.exe",
+      "args": ["serve"],
+      "type": "stdio"
+    }
+  }
+}
+```
+
+### 查找组件路径
+
+```bash
+# Windows (Git Bash)
+which memorygraph
+which code-review-graph
+
+# 或查找 Python Scripts 目录
+ls G:/FeiJiang/Anaconda2/envs/python3/Scripts/
+
+# Linux/Mac
+which memorygraph
+which code-review-graph
+```
 
 ---
 

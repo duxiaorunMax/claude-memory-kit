@@ -2,6 +2,15 @@
 
 一键初始化项目的记忆系统。
 
+## ⚠️ 重要区分
+
+| 操作 | 命令 | 用途 |
+|------|------|------|
+| **本项目** | `/my-mem-init` | 新项目首次初始化（创建配置） |
+| **存储知识** | `mcp__memorygraph__store_memory` | 日常存储知识到数据库 |
+
+**本项目只用于初始化，不用于存储知识！**
+
 ## 触发
 
 - 用户请求：`初始化记忆`、`/my-mem-init`
@@ -15,7 +24,16 @@
 - 检查 `.mcp.json` 是否已包含 memorygraph-project
 - 检查 `.claude/memory/` 目录是否存在
 
-### 2. 创建项目配置
+### 2. 检测组件路径
+
+自动检测以下组件的安装路径：
+
+| 组件 | 检测路径 |
+|------|----------|
+| memorygraph | `~/.local/bin/memorygraph.exe` (Windows) 或 `~/.local/bin/memorygraph` (Linux/Mac) |
+| code-review-graph | `~/.local/bin/code-review-graph` 或 Python Scripts 目录 |
+
+### 3. 创建/更新项目配置
 
 创建以下文件结构：
 
@@ -35,14 +53,20 @@
     └── recent.md
 ```
 
-### 3. .mcp.json 模板
+### 4. 处理已存在的配置
+
+如果 `.mcp.json` 已存在（如项目已有其他 MCP 配置）：
+- **自动添加** `memorygraph-project` 配置（不覆盖现有配置）
+- **自动修复** `code-review-graph` 短路径为完整路径
+
+### 5. .mcp.json 模板
 
 ```json
 {
   "mcpServers": {
     "memorygraph-project": {
       "type": "stdio",
-      "command": "<用户home>/.local/bin/memorygraph",
+      "command": "C:/Users/你的用户名/.local/bin/memorygraph.exe",
       "args": [],
       "env": {
         "MEMORY_SQLITE_PATH": "./.claude/memory/memory.db"
@@ -52,7 +76,9 @@
 }
 ```
 
-### 4. 更新项目注册表
+**注意**：路径使用正斜杠 `/`，兼容所有环境。
+
+### 6. 更新项目注册表
 
 初始化完成后，更新全局项目注册表：
 
@@ -64,7 +90,7 @@ mcp__memorygraph__search_memories({
 // 然后更新项目列表
 ```
 
-### 5. 检查代码图（可选增强）
+### 7. 检查代码图（可选增强）
 
 记忆系统初始化完成后，检查是否已配置代码知识图谱：
 
@@ -91,7 +117,7 @@ fi
 - **用户选 y** → 执行 `/my-mem-codegraph`
 - **用户选 n** → 跳过，完成记忆系统初始化
 
-### 6. 最终输出
+### 8. 最终输出
 
 ```
 ✅ 项目记忆系统初始化完成
@@ -110,6 +136,59 @@ fi
 下一步：
 1. 重启会话使配置生效
 2. AI 会自动学习项目知识并存储
+```
+
+## 路径配置指南
+
+### Windows 用户
+
+**统一使用正斜杠 `/`**：
+
+```json
+// ❌ 错误 - 反斜杠可能被转义
+"command": "G:\\FeiJiang\\Anaconda2\\python.exe"
+
+// ✅ 正确 - 正斜杠兼容所有环境
+"command": "G:/FeiJiang/Anaconda2/python.exe"
+```
+
+### 查找组件路径
+
+```bash
+# Windows (Git Bash)
+which memorygraph
+which code-review-graph
+
+# 或查找 Python Scripts 目录
+ls G:/FeiJiang/Anaconda2/envs/python3/Scripts/
+
+# Linux/Mac
+which memorygraph
+which code-review-graph
+```
+
+### 手动配置示例
+
+如果自动检测失败，手动修改 `.mcp.json`：
+
+```json
+{
+  "mcpServers": {
+    "memorygraph-project": {
+      "type": "stdio",
+      "command": "C:/Users/你的用户名/.local/bin/memorygraph.exe",
+      "args": [],
+      "env": {
+        "MEMORY_SQLITE_PATH": "./.claude/memory/memory.db"
+      }
+    },
+    "code-review-graph": {
+      "command": "你的Python路径/Scripts/code-review-graph.exe",
+      "args": ["serve"],
+      "type": "stdio"
+    }
+  }
+}
 ```
 
 ## 记忆系统架构
@@ -141,4 +220,5 @@ mcp__memorygraph__search_memories({
 
 - 全局记忆 (`mcp__memorygraph__*`) 无需初始化，自动可用
 - 项目记忆需要重启会话才能加载新的 MCP 工具
-- Hook 使用绝对路径，避免工作目录变化导致找不到文件
+- **路径使用正斜杠 `/`**，兼容 Windows 和 Unix
+- 已存在 `.mcp.json` 时会自动合并配置，不覆盖
