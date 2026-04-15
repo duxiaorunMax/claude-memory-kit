@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "memorygraph-project": {
+      "type": "stdio",
+      "command": "{{HOME}}/.local/bin/memorygraph",
+      "args": [],
+      "env": {
+        "MEMORY_SQLITE_PATH": "./.claude/memory/memory.db"
+      }
+    }
+  }
+}

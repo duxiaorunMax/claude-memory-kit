@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{PROJECT_PATH}}/.claude/hooks/session-start-memory.js\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{PROJECT_PATH}}/.claude/hooks/pre-compact-memory.js\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{PROJECT_PATH}}/.claude/hooks/stop-memory.js\""
+          }
+        ]
+      }
+    ]
+  }
+}
