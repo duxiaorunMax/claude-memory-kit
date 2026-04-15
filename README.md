@@ -152,9 +152,37 @@ mcp__memorygraph__store_memory({
 
 ## 依赖要求
 
-- Python 3.8+
-- Node.js 16+ (用于 Hook 脚本)
-- Claude Code CLI
+### 必需依赖
+
+| 依赖 | 版本 | 用途 | 安装方式 |
+|------|------|------|----------|
+| Python | 3.8+ | CLI 工具、维护脚本 | [python.org](https://python.org) |
+| Node.js | 16+ | Hook 脚本 | [nodejs.org](https://nodejs.org) |
+| Claude Code CLI | 最新版 | 核心运行环境 | `npm install -g @anthropic-ai/claude-code` |
+
+### 可选依赖（推荐安装）
+
+| 依赖 | 用途 | 安装方式 |
+|------|------|----------|
+| `jq` | remember 插件 JSON 解析（Windows Git Bash） | 见下方 |
+| code-review-graph | 代码知识图谱 | `/my-mem-codegraph` |
+
+### Windows 用户安装 jq
+
+如果使用 **Git Bash** 作为终端，需要安装 `jq`：
+
+```bash
+# 方式1: 使用 pacman (Git Bash/MSYS2 自带)
+pacman -S jq
+
+# 方式2: 手动安装
+# 下载 https://jqlang.github.io/jq/download/
+# 放到 Git Bash 的 /usr/bin 目录（通常是 C:\Program Files\Git\usr\bin）
+```
+
+**不安装 jq 的影响**：
+- remember 插件的 SessionStart hook 会报错
+- 记忆上下文注入功能失效
 
 ---
 
